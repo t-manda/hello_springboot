@@ -16,7 +16,7 @@
     </div>
 
     <br />
-    <form action="./add" method="post">
+    <form th:action="@{/{n}/hello/add(n=${name})}" method="post">
       <div>
         <label for="text">あいさつを追加</label>
         <input name="text" id="text" />

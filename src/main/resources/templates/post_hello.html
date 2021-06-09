@@ -8,6 +8,6 @@
     <h1>あいさつを追加しました！</h1>
     <p>[[${name}]]さん、あいさつ文「[[${greeting}]]」を追加しました！</p>
 
-    <button type="button" onclick="location.href='./'">戻る</button>
+    <a th:href="@{/{n}/hello(n=${name})}">戻る</a>
   </body>
 </html>

@@ -11,24 +11,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HelloController {
-
+    //あいさつのリスト
     private ArrayList<String> list = new ArrayList<>();
 
-    @GetMapping("{name}/hello")
+    /**
+     * HTTP-GET で 猫ちゃんのあいさつページを表示する
+     * @return あいさつページ
+     */
+    @GetMapping("/{name}/hello")
     public String SayHelloRequestParam(@PathVariable String name, Model model) {
-        model.addAttribute("greeting", createGreetingMessage());
-        model.addAttribute("name", name);
-        return "hello";
+        model.addAttribute("greeting", createGreetingMessage()); //あいさつ文セット
+        model.addAttribute("name", name);    //ユーザ名セット
+        return "hello";                      //テンプレ hello.htmlをレンダリング
     }
 
-    @PostMapping("{name}/hello/add")
+    /**
+     * HTTP-POST であいさつ文が追加されたときのふるまい 
+     * @return あいさつ追加ページ
+     */
+    @PostMapping("/{name}/hello/add")
     public String addHello(@PathVariable String name, @RequestParam("text") String text, Model model) {
         list.add(text);
-        model.addAttribute("greeting", text);
-        model.addAttribute("name", name);
-        return "post_hello";
+        model.addAttribute("greeting", text); //追加されたあいさつをセット
+        model.addAttribute("name", name);     //ユーザ名セット
+        return "post_hello";                  //テンプレ post_hello.htmlをレンダリング
     }
 
+    /**
+     * 登録済みのあいさつを連結して、文字列にして返す
+     * @return 登録されたあいさつ文字列
+     */
     private String createGreetingMessage() {
 
         String greeting = "";
