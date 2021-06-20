@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello Spring Boot</title>
-    <link rel="stylesheet" th:href="@{/css/hello.css}" />
-  </head>
-  <body>
-    <h1>Hello Spring Boot!</h1>
-    <div class="balloon1">
-      <p th:text="${greeting}"></p>
-      <p>[[${name}]]さん、Spring Bootへようこそにゃ！</p>
-    </div>
-    <div>
-      <img th:src="@{/img/cat.jpg}" />
-    </div>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 
-    <br />
+<head>
+  <meta charset="UTF-8" />
+  <title>Hello Spring Boot</title>
+  <link rel="stylesheet" th:href="@{/css/hello.css}" />
+</head>
+
+<body>
+  <h1>Hello Spring Boot!</h1>
+
+  <div class="balloon1">
+    <p th:text="${greeting}"></p>
+    <p>[[${name}]]さん、Spring Bootへようこそにゃ！</p>
+  </div>
+  
+  <div>
+    <img th:src="@{/img/cat.jpg}" />
+  </div>
+
+  <div>
     <form th:action="@{/{n}/hello/add(n=${name})}" method="post">
-      <div>
-        <label for="text">あいさつを追加</label>
-        <input name="text" id="text" />
-        <button>追加</button>
-      </div>
+      <label for="text">あいさつを追加</label>
+      <input type="text" name="aisatsu" id="aisatsu" />
+      <input type="submit" value="追加" />
     </form>
-  </body>
+  </div>
+</body>
+
 </html>
