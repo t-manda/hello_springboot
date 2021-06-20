@@ -1,0 +1,221 @@
+* はじめてのSpring Boot
+
+- 目標： 猫アプリを自分の環境で作成・実行し，自身の開発環境のテストを行うとともに，Spring Boot の開発の流れをつかむ
+
+&attachref();
+
+** Git Hub レポジトリを準備する
++ 各自，自分のGitHubレポジトリに，新しくhello_spring_bootを作る
+-- Publicで作成し，Add a README file もチェックしておくこと
++ 手元のノートPCにcloneしておく
++ 適宜，ブランチを作って移動しておく
+
+** Spring Initializr でプロジェクトのひな型を作る
++ [[Spring Initializr:https://start.spring.io/]]にアクセスする
++ 下記の情報を入れる
+-- Project: Gradle Project
+-- Language: Java
+-- Spring Boot: 2.5.1
+-- Project Metadata:
+--- Group: jp.kobespiral
+--- Artifact: hello
+--- Name: hello
+--- Description: 猫アプリ as 初めてのSpring Boot アプリケーション．
+--- Package name: jp.kobespiral.hello
+--- Packaging: war
+--- Java: 11
+-- Dependencies (Ctrlを押しながら操作すると複数同時に選べる) 
+--- Spring Boot DevTools (開発ツール)
+--- Lombok (コンストラクタやsetter/getterを自動生成してくれる神ライブラリ)
+--- Spring Web (Webアプリを作るときは必須)
+--- Thymeleaf (HTML テンプレートエンジン)
++ GENERATE ボタンを押し，ダウンロードされたdemo.zip を 展開する
++ 展開されたフォルダdemoを，git cloneしたhello_spring_bootに移動
++ エクスプローラでdemoを開き，右クリック→VSCodeで開く
++ Do you trust ... ?　には Yes, I trust と答える
++ 右下のグルグルマークをダブルクリックし，初期化が終わるのを待つ
++ src/main/java/jp/kobespiral/hello の中に，以下のファイルがあることを確認する
+-- HelloApplication.java - 猫アプリ本体
+-- ServletInitializer.java  - Webアプリ(Java Servlet)を開始するモジュール
+
+** Webアプリのバックエンド（コントローラ）を作成する
++ src/main/java/jp/kobespiral/hello の中に，HelloControler.java を新規作成し，以下のコードを貼り付ける
+-- src/main/java/jp/kobespiral/hello/HelloController.java
+ package jp.kobespiral.hello;
+ 
+ import java.util.ArrayList;
+ 
+ import org.springframework.stereotype.Controller;
+ import org.springframework.ui.Model;
+ import org.springframework.web.bind.annotation.GetMapping;
+ import org.springframework.web.bind.annotation.PathVariable;
+ import org.springframework.web.bind.annotation.PostMapping;
+ import org.springframework.web.bind.annotation.RequestParam;
+ 
+ @Controller
+ public class HelloController {
+     // あいさつのリスト
+     private ArrayList<String> list = new ArrayList<>();
+ 
+     /**
+      * HTTP-GET で 猫ちゃんのあいさつページを表示する
+      * 
+      * @param name  パス・パラメータに含まれるユーザ名
+      * @param model 画面のモデル
+      * @return あいさつページ
+      */
+     @GetMapping("/{name}/hello")
+     public String SayHelloRequestParam(@PathVariable String name, Model model) {
+         model.addAttribute("greeting", createGreetingMessage()); // あいさつ文セット
+         model.addAttribute("name", name); // ユーザ名セット
+         return "hello"; // テンプレ hello.htmlをレンダリング
+     }
+ 
+     /**
+      * HTTP-POST であいさつ文を追加する
+      * 
+      * @param name  パス・パラメータに含まれるユーザ名
+      * @param aisatsu  フォームから入力されたあいさつ文
+      * @param model 画面のモデル
+      * @return あいさつ追加ページ
+      */
+     @PostMapping("/{name}/hello/add")
+     public String addHello(@PathVariable String name, @RequestParam("aisatsu") String aisatsu, Model model) {
+         list.add(aisatsu);
+         model.addAttribute("greeting", aisatsu); // 追加されたあいさつをセット
+         model.addAttribute("name", name); // ユーザ名セット
+         return "post_hello"; // テンプレ post_hello.htmlをレンダリング
+     }
+ 
+     /**
+      * 登録済みのあいさつを連結して、文字列にして返す
+      * 
+      * @return 登録されたあいさつ文字列
+      */
+     private String createGreetingMessage() {
+         String greeting = "";
+         for (String s : this.list) {
+             greeting = greeting + s + "、";
+         }
+         return greeting;
+     }
+ }
+
+** Webアプリのフロントエンドを作成する
+*** 静的リソースを準備する
++ src/main/resources/static の中に，新規フォルダを作成する
+-- css : cssファイルを入れる
+-- img : 画像ファイルを入れる
++ [[cat.jpg]] をダウンロードし，cssフォルダの中にコピーする
++ cssフォルダの中に，hello.cssを新規作成し，下記の内容を張り付ける
+-- src/main/resources/static/hello.css (猫のセリフの吹き出しのデザイン)
+ .balloon1 {
+   position: relative;
+   display: inline-block;
+   margin: 1.5em 0;
+   padding: 7px 10px;
+   min-width: 120px;
+   max-width: 100%;
+   color: #555;
+   font-size: 16px;
+   background: #c3f69d;
+   border-radius: 15px;
+ }
+ 
+ .balloon1:before {
+   content: '';
+   position: absolute;
+   top: 100%;
+   left: 50%;
+   margin-left: -15px;
+   border: 15px solid transparent;
+   border-top: 15px solid #c3f69d;
+ }
+ 
+ .balloon1 p {
+   margin: 0;
+   padding: 0;
+ }
+
+*** HTML テンプレートを用意する
++ src/main/resources/templatesの中に，hello.htmlを新規作成し，下記の内容を貼り付ける
+-- src/main/resources/templates/hello.html (猫アプリトップ画面)
+ <!DOCTYPE html>
+ <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+ 
+ <head>
+   <meta charset="UTF-8" />
+   <title>Hello Spring Boot</title>
+   <link rel="stylesheet" th:href="@{/css/hello.css}" />
+ </head>
+ 
+ <body>
+   <h1>Hello Spring Boot!</h1>
+ 
+   <div class="balloon1">
+     <p th:text="${greeting}"></p>
+     <p>[[${name}]]さん、Spring Bootへようこそにゃ！</p>
+   </div>
+   
+   <div>
+     <img th:src="@{/img/cat.jpg}" />
+   </div>
+ 
+   <div>
+     <form th:action="@{/{n}/hello/add(n=${name})}" method="post">
+       <label for="text">あいさつを追加</label>
+       <input type="text" name="aisatsu" id="aisatsu" />
+       <input type="submit" value="追加" />
+     </form>
+   </div>
+ </body>
+ 
+ </html>
++ src/main/resources/templatesの中に，post_hello.htmlを新規作成し，下記の内容を貼り付ける
+-- src/main/resources/templates/post_hello.html (あいさつ追加完了画面)
+ <!DOCTYPE html>
+ <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+   <head>
+     <meta charset="UTF-8" />
+     <title>Hello Spring Boot</title>
+   </head>
+   <body>
+     <h1>あいさつを追加しました！</h1>
+     <p>[[${name}]]さん、あいさつ文「[[${greeting}]]」を追加しました！</p>
+ 
+     <a th:href="@{/{n}/hello(n=${name})}">戻る</a>
+   </body>
+ </html>
+
+** Webアプリの設定を行う
++ src/main/resources/application.properties を開き，次の内容をコピー
+ # テスト用のサーバポートは ニャーニャー
+ server.port = 28280 
++ build.gradle を開き，最下部に以下の内容をコピー
+ // war ファイルを構築するタスク
+ war {
+     enabled = true
+     archiveName='demo.war' // <- プロジェクトに合わせて書き換える
+ }
+
+** 実行してテストする
++ src/main/java/jp/kobespiral/hello/HelloAppication.java を開き，F5を押す（または，mainの上のRunをクリック）
++ ブラウザで，[[http://localhost:28280/自分の名前/hello]] を開く
++ 猫アプリが起動すればOK
+
+** war に固めてローカルマシンのTomcatにデプロイする
++ VSCode で Ctrl-Shift-@ を押し，シェルを立ち上げる
++ .\gradlew.bat war とタイプする
++ BUILD SUCCESSFUL と出たら，build/libs の中に，demo.war ができていることを確認する
++ エクスプローラで demo.war を C:\TAMP\Tomcat\webapps にコピーする
++ Tomcatを起動し，ブラウザから↓を開いて確認する
+-- http://localhost:8080/demo/自分の名前/hello
+
+** （余裕があれば） EC2にデプロイする
++ demo.war を 自分のEC2サーバの /usr/tomcat/webapps/にコピーする
+-- Teraterm または RLoginによる転送を行う
+-- sudo su によるroot権限が必要
++ 確認する
+-- http://EC2のパブリックIPアドレス:8080/demo/自分の名前/hello
+
+
