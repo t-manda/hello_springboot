@@ -65,7 +65,7 @@
       * @return あいさつページ
       */
      @GetMapping("/{name}/hello")
-     public String SayHelloRequestParam(@PathVariable String name, Model model) {
+     public String sayHello(@PathVariable String name, Model model) {
          model.addAttribute("greeting", createGreetingMessage()); // あいさつ文セット
          model.addAttribute("name", name); // ユーザ名セット
          return "hello"; // テンプレ hello.htmlをレンダリング
